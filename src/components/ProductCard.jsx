@@ -2,7 +2,7 @@ export default function ProductCard({ product, formatPrice, onConfigure }) {
   return (
     <article className={`menu-card accent-${product.categoryColor}`}>
       <div className="menu-card__visual">
-        {product.categoryImage && <img src={product.categoryImage} alt="" loading="lazy" />}
+        {product.categoryImage && <img src={`${import.meta.env.BASE_URL}${product.categoryImage.startsWith('/') ? product.categoryImage.slice(1) : product.categoryImage}`} alt="" loading="lazy" />}
         <span>{product.categoryIcon}</span>
       </div>
 
