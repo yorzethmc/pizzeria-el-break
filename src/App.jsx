@@ -351,7 +351,7 @@ export default function App() {
                   key={category.id}
                   onClick={() => setActiveCategory(category.id)}
                 >
-                  {category.image && <img src={category.image} alt="" />}
+                  {category.image && <img src={`${import.meta.env.BASE_URL}${category.image.replace(/^\\//, '')}`} alt="" />}
                   <span className="showcase-card__shade" aria-hidden="true" />
                   <span className="showcase-card__icon">{category.icon}</span>
                   <span>
