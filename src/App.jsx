@@ -556,13 +556,15 @@ export default function App() {
       )}
 
       <footer className="site-footer">
-        <span>Created by Erick Yorzeth Masis Cavero</span>
-        <a href={`https://wa.me/${CREATOR_PHONE.replace(/\D/g, "")}`} target="_blank" rel="noreferrer">
-          {CREATOR_PHONE}
-        </a>
-        <a href={`https://www.instagram.com/${CREATOR_INSTAGRAM}/`} target="_blank" rel="noreferrer">
-          Instagram: @{CREATOR_INSTAGRAM}
-        </a>
+        <span>✨ Created by Erick Yorzeth Masis Cavero ✨</span>
+        <div className="footer-links">
+          <a href={`https://wa.me/${CREATOR_PHONE.replace(/\D/g, "")}`} target="_blank" rel="noreferrer">
+            💬 WhatsApp: {CREATOR_PHONE}
+          </a>
+          <a href={`https://www.instagram.com/${CREATOR_INSTAGRAM}/`} target="_blank" rel="noreferrer">
+            📸 Instagram: @{CREATOR_INSTAGRAM}
+          </a>
+        </div>
       </footer>
     </div>
   );

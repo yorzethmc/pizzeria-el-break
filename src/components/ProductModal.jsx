@@ -65,71 +65,75 @@ export default function ProductModal({ product, formatPrice, maxQuantity, onClos
           </button>
         </div>
 
-        <div className="option-group">
-          <h3>Elige una opcion</h3>
-          <div className="choice-stack">
-            {product.options.map((option) => (
-              <label className="choice-row" key={option.id} onClick={() => setSelectedOptionId(option.id)}>
-                <input
-                  type="radio"
-                  name={`option-${product.id}`}
-                  checked={selectedOptionId === option.id}
-                  onChange={() => setSelectedOptionId(option.id)}
-                />
-                <span>
-                  <strong>{option.name}</strong>
-                  <small>{option.addPrice > 0 ? `+ ${formatPrice(option.addPrice)}` : "Incluido"}</small>
-                </span>
-              </label>
-            ))}
-          </div>
-        </div>
-
-        {extras.length > 0 && (
+        <div className="product-modal__scrollable">
           <div className="option-group">
-            <h3>Extras</h3>
+            <h3>Elige una opcion</h3>
             <div className="choice-stack">
-              {extras.map((extra) => (
-                <label className="choice-row" key={extra.id}>
+              {product.options.map((option) => (
+                <label className="choice-row" key={option.id} onClick={() => setSelectedOptionId(option.id)}>
                   <input
-                    type="checkbox"
-                    checked={selectedExtras.has(extra.id)}
-                    onChange={() => toggleExtra(extra.id)}
+                    type="radio"
+                    name={`option-${product.id}`}
+                    checked={selectedOptionId === option.id}
+                    onChange={() => setSelectedOptionId(option.id)}
                   />
                   <span>
-                    <strong>{extra.name}</strong>
-                    <small>+ {formatPrice(extra.price)}</small>
+                    <strong>{option.name}</strong>
+                    <small>{option.addPrice > 0 ? `+ ${formatPrice(option.addPrice)}` : "Incluido"}</small>
                   </span>
                 </label>
               ))}
             </div>
           </div>
-        )}
 
-        <div className="quantity-row">
-          <span>Cantidad</span>
-          <div className="qty-control">
-            <button type="button" onClick={() => updateQuantity(quantity - 1)} aria-label="Restar cantidad">-</button>
-            <input
-              type="number"
-              min="1"
-              max={maxQuantity}
-              value={quantity}
-              onChange={(event) => updateQuantity(event.target.value)}
-              aria-label="Cantidad"
-            />
-            <button type="button" onClick={() => updateQuantity(quantity + 1)} aria-label="Sumar cantidad">+</button>
+          {extras.length > 0 && (
+            <div className="option-group">
+              <h3>Extras</h3>
+              <div className="choice-stack">
+                {extras.map((extra) => (
+                  <label className="choice-row" key={extra.id}>
+                    <input
+                      type="checkbox"
+                      checked={selectedExtras.has(extra.id)}
+                      onChange={() => toggleExtra(extra.id)}
+                    />
+                    <span>
+                      <strong>{extra.name}</strong>
+                      <small>+ {formatPrice(extra.price)}</small>
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="product-modal__footer">
+          <div className="quantity-row">
+            <span>Cantidad</span>
+            <div className="qty-control">
+              <button type="button" onClick={() => updateQuantity(quantity - 1)} aria-label="Restar cantidad">-</button>
+              <input
+                type="number"
+                min="1"
+                max={maxQuantity}
+                value={quantity}
+                onChange={(event) => updateQuantity(event.target.value)}
+                aria-label="Cantidad"
+              />
+              <button type="button" onClick={() => updateQuantity(quantity + 1)} aria-label="Sumar cantidad">+</button>
+            </div>
           </div>
-        </div>
 
-        <div className="modal-total">
-          <span>Total configurado</span>
-          <strong>{formatPrice(lineTotal)}</strong>
-        </div>
+          <div className="modal-total">
+            <span>Total configurado</span>
+            <strong>{formatPrice(lineTotal)}</strong>
+          </div>
 
-        <button className="primary-button" type="button" onClick={handleAddToCart}>
-          Añadir al carrito - {formatPrice(lineTotal)}
-        </button>
+          <button className="primary-button" type="button" onClick={handleAddToCart}>
+            Añadir al carrito - {formatPrice(lineTotal)}
+          </button>
+        </div>
       </section>
     </div>
   );
