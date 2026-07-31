@@ -41,3 +41,9 @@
 - Avance: Se refactorizo la logica del menu a Producto Base + Opciones + Extras, con modal de configuracion, radio buttons, checkboxes y total dinamico.
 - Archivos modificados: src/menuData.js, src/App.jsx, src/components/ProductCard.jsx, src/components/ProductModal.jsx, src/styles.css, CATEGORIAS_MENU.md.
 - Siguiente paso: Revisar si todas las combinaciones compactadas mantienen exactamente los precios del menu fisico.
+
+## 2026-07-31 11:21
+
+- Avance: Se soluciono el error en la ruta del favicon en `index.html` (reemplazado `%BASE_URL%` por ruta absoluta para Vite) y se implemento el guardado del carrito en `localStorage` en `App.jsx` cumpliendo con los criterios de finalizacion del protocolo.
+- Archivos modificados: `index.html`, `src/App.jsx`, `bitacora/PROGRESO.md`.
+- Siguiente paso: Realizar pruebas finales del flujo de compra y validar con el cliente.

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, Fragment } from "react";
 import ProductCard from "./components/ProductCard.jsx";
 import ProductModal from "./components/ProductModal.jsx";
 import LanguageGate from "./components/LanguageGate.jsx";
@@ -62,7 +62,13 @@ export default function App() {
   const [view, setView] = useState("menu");
   const [activeCategory, setActiveCategory] = useState("todo");
   const [query, setQuery] = useState("");
-  const [cart, setCart] = useState([]);
+  const [cart, setCart] = useState(() => {
+    try {
+      const saved = window.localStorage.getItem("el-break-cart");
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return [];
+  });
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [orderType, setOrderType] = useState("express");
   const [customerName, setCustomerName] = useState("");
@@ -83,6 +89,10 @@ export default function App() {
   const cartPanelRef = useRef(null);
 
   const t = translations[lang || "es"];
+
+  useEffect(() => {
+    window.localStorage.setItem("el-break-cart", JSON.stringify(cart));
+  }, [cart]);
 
   useEffect(() => {
     const interval = window.setInterval(() => setNow(new Date()), 60000);
@@ -321,7 +331,7 @@ export default function App() {
       lines.push(`- ${item.quantity} x ${item.name}`);
       lines.push(`  Opcion: ${item.option.name}`);
       if (item.extras.length > 0) {
-        lines.push(`  Extras: ${item.extras.map((extra) => extra.name).join(", ")}`);
+        lines.push(`  Extras: ${item.extras.map((extra) => `${extra.qty > 1 ? extra.qty + 'x ' : ''}${extra.name}`).join(", ")}`);
       }
       lines.push(`  Subtotal: ${formatPrice(item.subtotal)}`);
       if (item.description) {
@@ -429,15 +439,31 @@ export default function App() {
 
             <div className="menu-grid">
               {filteredItems.length > 0 ? (
-                filteredItems.map((item) => (
-                  <ProductCard
-                    product={item}
-                    formatPrice={formatPrice}
-                    t={t}
-                    key={item.id}
-                    onConfigure={() => setSelectedProduct(item)}
-                  />
-                ))
+                (() => {
+                  let currentSection = null;
+                  return filteredItems.map((item) => {
+                    const sectionHeading = item.section && item.section !== currentSection ? (
+                      <div className="section-heading" key={`sec-${item.section}`} style={{ gridColumn: "1 / -1", marginTop: "1rem" }}>
+                        <h3 style={{ margin: 0, paddingBottom: "8px", borderBottom: "2px solid var(--ink)" }}>
+                          {item.section}
+                        </h3>
+                      </div>
+                    ) : null;
+                    currentSection = item.section || currentSection;
+                    
+                    return (
+                      <Fragment key={item.id}>
+                        {sectionHeading}
+                        <ProductCard
+                          product={item}
+                          formatPrice={formatPrice}
+                          t={t}
+                          onConfigure={() => setSelectedProduct(item)}
+                        />
+                      </Fragment>
+                    );
+                  });
+                })()
               ) : (
                 <div className="empty-state">
                   {t.noResults}
@@ -463,7 +489,7 @@ export default function App() {
                       <strong>{item.name}</strong>
                       <span>{item.quantity} x {item.option.name}</span>
                       {item.extras.length > 0 && (
-                        <span>{t.extrasLabel}: {item.extras.map((extra) => extra.name).join(", ")}</span>
+                        <span>{t.extrasLabel}: {item.extras.map((extra) => `${extra.qty > 1 ? extra.qty + 'x ' : ''}${extra.name}`).join(", ")}</span>
                       )}
                     </div>
                     <div className="cart-line__actions">

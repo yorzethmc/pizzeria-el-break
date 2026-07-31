@@ -233,13 +233,17 @@ function localizeOption(option, lang) {
 }
 
 function localizeItem(item, lang) {
-  return {
+  const localized = {
     ...item,
     name: pick(item, "name", lang),
     description: pick(item, "description", lang),
     options: item.options.map((option) => localizeOption(option, lang)),
     extras: (item.extras || []).map((extra) => localizeOption(extra, lang))
   };
+  if (item.section) {
+    localized.section = pick(item, "section", lang);
+  }
+  return localized;
 }
 
 export function localizeCategories(categories, lang) {

@@ -33,8 +33,8 @@
 ## 2026-06-14 01:02
 
 - Decision: Bloquear el boton de pedido fuera del horario de servicio.
-- Motivo: El usuario indico que no se deben tomar ordenes fuera de viernes, sabado y domingo en los horarios definidos.
-- Alternativas consideradas: Permitir pedidos con aviso de demora. Se descarta porque el requerimiento pide no tomar ordenes.
+- Motivo: El usuario indicó que se deben tomar ordenes de Lunes a Sábado en los horarios definidos (11:00 a.m. a 9:00 p.m.) y que los domingos está cerrado.
+- Alternativas consideradas: Permitir pedidos con aviso de demora. Se descarta porque el requerimiento pide no tomar ordenes fuera de horario.
 
 ## 2026-06-14 10:02
 

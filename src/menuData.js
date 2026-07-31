@@ -63,6 +63,28 @@ function pizza(id, name, nameEn, description, descriptionEn, matrix, image) {
   };
 }
 
+function calzoneSizeOptions(matrix) {
+  return [
+    { id: "personal", name: "Personal (4 porciones)", nameEn: "Personal (4 slices)", addPrice: 0, isDefault: true },
+    { id: "pequeno", name: "Pequeño (6 porciones)", nameEn: "Small (6 slices)", addPrice: matrix.pequena - matrix.personal },
+    { id: "mediano", name: "Mediano (8 porciones)", nameEn: "Medium (8 slices)", addPrice: matrix.mediana - matrix.personal }
+  ];
+}
+
+function calzone(id, name, nameEn, description, descriptionEn, matrix, image) {
+  return {
+    id,
+    name,
+    nameEn,
+    description,
+    descriptionEn,
+    basePrice: matrix.personal,
+    options: calzoneSizeOptions(matrix),
+    extras: pizzaExtras,
+    image: image || null
+  };
+}
+
 const tierA = { personal: 2000, pequena: 3500, mediana: 6500, grande: 9000 };
 const tierB = { personal: 2500, pequena: 4000, mediana: 7000, grande: 9500 };
 const tierC = { personal: 3000, pequena: 4500, mediana: 7500, grande: 10500 };
@@ -180,20 +202,33 @@ export const menuCategories = [
     color: "orange",
     image: null,
     items: [
-      {
-        id: "cz-el-break",
-        name: "Calzone El Break",
-        nameEn: "El Break Calzone",
-        description:
-          "Nuestro producto más pedido. Masa hand-stretched plegada y horneada hasta dorar, espolvoreada con parmesano. Rellena de queso mozzarella derretido y nuestra Salsa Pomodoro de tomate pera. Tamaños y precio a confirmar con el local.",
-        descriptionEn:
-          "Our best-selling item. Hand-stretched dough folded and baked until golden, dusted with parmesan. Filled with melted mozzarella cheese and our pear-tomato Pomodoro sauce. Sizes and price to be confirmed with the restaurant.",
-        priceOnRequest: true,
-        basePrice: null,
-        options: [{ id: "unico", name: "Tamaño (a confirmar con el local)", nameEn: "Size (to be confirmed with the restaurant)", addPrice: 0, isDefault: true }],
-        extras: [],
-        image: "/assets/menu/cz_break.webp"
-      }
+      calzone(
+        "cz-pepperoni",
+        "Calzone Pepperoni",
+        "Pepperoni Calzone",
+        "Masa horneada hasta dorar, espolvoreada con parmesano. Rellena de sabroso pepperoni, queso mozzarella y nuestra Salsa Pomodoro.",
+        "Baked dough dusted with parmesan. Filled with tasty pepperoni, mozzarella cheese and our Pomodoro sauce.",
+        tierA,
+        "/assets/menu/cz_break.webp"
+      ),
+      calzone(
+        "cz-jamon-queso",
+        "Calzone Jamón y Queso",
+        "Ham and Cheese Calzone",
+        "Masa horneada hasta dorar, espolvoreada con parmesano. Rellena de jamón de cerdo, queso mozzarella y nuestra Salsa Pomodoro.",
+        "Baked dough dusted with parmesan. Filled with pork ham, mozzarella cheese and our Pomodoro sauce.",
+        tierA,
+        "/assets/menu/cz_break.webp"
+      ),
+      calzone(
+        "cz-supremo",
+        "Calzone Supremo",
+        "Supreme Calzone",
+        "Masa horneada hasta dorar, espolvoreada con parmesano. Rellena de carne boloñesa, chile dulce, cebolla, queso mozzarella y Salsa Pomodoro.",
+        "Baked dough dusted with parmesan. Filled with ground beef bolognese, bell pepper, onion, mozzarella cheese and Pomodoro sauce.",
+        tierB,
+        "/assets/menu/cz_break.webp"
+      )
     ]
   },
   {
@@ -278,9 +313,9 @@ export const menuCategories = [
         basePrice: 4000,
         options: [{ id: "unico", name: "Tamaño único", nameEn: "One size", addPrice: 0, isDefault: true }],
         extras: [
-          { id: "prot-bolonesa", name: "Agregar carne boloñesa", nameEn: "Add ground beef bolognese", price: 0 },
-          { id: "prot-pollo", name: "Agregar pollo", nameEn: "Add chicken", price: 0 },
-          { id: "prot-tocineta", name: "Agregar tocineta", nameEn: "Add bacon", price: 0 }
+          { id: "prot-bolonesa", name: "Agregar carne boloñesa", nameEn: "Add ground beef bolognese", price: 400 },
+          { id: "prot-pollo", name: "Agregar pollo", nameEn: "Add chicken", price: 400 },
+          { id: "prot-tocineta", name: "Agregar tocineta", nameEn: "Add bacon", price: 400 }
         ],
         image: "/assets/menu/oa_portobello.webp"
       }
@@ -359,17 +394,19 @@ export const menuCategories = [
     ]
   },
   {
-    id: "cat-refrescos-gaseosos",
-    name: "Refrescos Gaseosos",
-    nameEn: "Sodas",
-    shortName: "Gaseosas",
-    shortNameEn: "Sodas",
+    id: "cat-bebidas",
+    name: "Bebidas",
+    nameEn: "Drinks",
+    shortName: "Bebidas",
+    shortNameEn: "Drinks",
     icon: "🥤",
     color: "blue",
-    image: "/assets/menu/rg_coca.webp",
+    image: null,
     items: [
       {
         id: "rg-te-frio",
+        section: "Gaseosas",
+        sectionEn: "Sodas",
         name: "Vaso Té Frío",
         nameEn: "Iced Tea Glass",
         description: "Vaso de té frío Coca-Cola.",
@@ -380,6 +417,8 @@ export const menuCategories = [
       },
       {
         id: "rg-350",
+        section: "Gaseosas",
+        sectionEn: "Sodas",
         name: "Gaseosa 350 ml",
         nameEn: "Soda 350 ml",
         description: "Bebida Coca-Cola, presentación 350 ml.",
@@ -390,6 +429,8 @@ export const menuCategories = [
       },
       {
         id: "rg-600",
+        section: "Gaseosas",
+        sectionEn: "Sodas",
         name: "Gaseosa 600 ml",
         nameEn: "Soda 600 ml",
         description: "Bebida Coca-Cola, presentación 600 ml.",
@@ -400,6 +441,8 @@ export const menuCategories = [
       },
       {
         id: "rg-15l",
+        section: "Gaseosas",
+        sectionEn: "Sodas",
         name: "Gaseosa 1.5 L",
         nameEn: "Soda 1.5 L",
         description: "Bebida Coca-Cola, presentación 1.5 L.",
@@ -410,6 +453,8 @@ export const menuCategories = [
       },
       {
         id: "rg-25l",
+        section: "Gaseosas",
+        sectionEn: "Sodas",
         name: "Gaseosa 2.5 L",
         nameEn: "Soda 2.5 L",
         description: "Bebida Coca-Cola, presentación 2.5 L.",
@@ -417,21 +462,11 @@ export const menuCategories = [
         basePrice: 2500,
         options: [{ id: "unico", name: "2.5 L", nameEn: "2.5 L", addPrice: 0, isDefault: true }],
         extras: []
-      }
-    ]
-  },
-  {
-    id: "cat-refrescos-naturales",
-    name: "Refrescos Naturales",
-    nameEn: "Fresh Fruit Drinks",
-    shortName: "Naturales",
-    shortNameEn: "Fresh Drinks",
-    icon: "🍹",
-    color: "green",
-    image: "/assets/menu/rn_natural.webp",
-    items: [
+      },
       {
         id: "rn-agua",
+        section: "Naturales",
+        sectionEn: "Fresh Drinks",
         name: "Refresco Natural en Agua",
         nameEn: "Fresh Fruit Drink in Water",
         description: "Elige tu sabor favorito, preparado en agua.",
@@ -442,6 +477,8 @@ export const menuCategories = [
       },
       {
         id: "rn-leche",
+        section: "Naturales",
+        sectionEn: "Fresh Drinks",
         name: "Refresco Natural en Leche",
         nameEn: "Fresh Fruit Drink in Milk",
         description: "Elige tu sabor favorito, preparado en leche.",

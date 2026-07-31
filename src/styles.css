@@ -1081,11 +1081,51 @@ button:disabled {
   align-items: center;
   border: 2px solid var(--ink);
   border-radius: 8px;
-  padding: 10px;
+  padding: 14px 10px;
   background: var(--surface-tint);
+  min-height: 54px;
 }
 
-.choice-row input {
+.choice-row--extra {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.qty-control {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.qty-control button {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 2px solid var(--ink);
+  border-radius: 6px;
+  background: var(--surface);
+  font-weight: 900;
+  font-size: 1.1rem;
+  color: var(--ink);
+}
+
+.qty-control input {
+  width: 44px;
+  height: 34px;
+  text-align: center;
+  border: 2px solid var(--ink);
+  border-radius: 6px;
+  font-weight: 900;
+  font-size: 1rem;
+}
+
+.qty-control--extra {
+  transform: scale(0.9);
+  transform-origin: right center;
+}
+
+.choice-row input[type="radio"],
+.choice-row input[type="checkbox"] {
   width: 20px;
   height: 20px;
   accent-color: var(--red);

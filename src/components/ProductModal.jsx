@@ -1,24 +1,37 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function ProductModal({ product, formatPrice, maxQuantity, onClose, addToCart, whatsappUrl, t }) {
   const defaultOption = product.options.find((option) => option.isDefault) || product.options[0];
   const [selectedOptionId, setSelectedOptionId] = useState(defaultOption.id);
-  const [selectedExtras, setSelectedExtras] = useState(() => new Set());
+  const [selectedExtras, setSelectedExtras] = useState(() => ({}));
   const [quantity, setQuantity] = useState(1);
+
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, []);
 
   const selectedOption = product.options.find((option) => option.id === selectedOptionId) || defaultOption;
   const extras = product.extras || [];
-  const selectedExtraList = extras.filter((extra) => selectedExtras.has(extra.id));
+  const selectedExtraList = Object.entries(selectedExtras).map(([id, qty]) => {
+    const extra = extras.find(e => e.id === id);
+    return { ...extra, qty };
+  });
   const unitTotal = product.priceOnRequest ? 0 : calculateTotal(product, selectedOption, selectedExtraList);
   const lineTotal = unitTotal * quantity;
 
-  function toggleExtra(extraId) {
+  function updateExtraQuantity(extraId, nextQty) {
     setSelectedExtras((current) => {
-      const next = new Set(current);
-      if (next.has(extraId)) {
-        next.delete(extraId);
+      const parsedQty = Number.parseInt(nextQty, 10);
+      if (Number.isNaN(parsedQty)) return current;
+      const validQty = Math.max(parsedQty, 0);
+      const next = { ...current };
+      if (validQty <= 0) {
+        delete next[extraId];
       } else {
-        next.add(extraId);
+        next[extraId] = Math.min(validQty, 20); // max 20 extras of same type
       }
       return next;
     });
@@ -34,7 +47,7 @@ export default function ProductModal({ product, formatPrice, maxQuantity, onClos
   }
 
   function handleAddToCart() {
-    const extraSignature = selectedExtraList.map((extra) => extra.id).sort().join("|");
+    const extraSignature = selectedExtraList.map((extra) => `${extra.id}x${extra.qty}`).sort().join("|");
     const signature = `${product.id}::${selectedOption.id}::${extraSignature}`;
 
     addToCart({
@@ -97,19 +110,28 @@ export default function ProductModal({ product, formatPrice, maxQuantity, onClos
             <div className="option-group">
               <h3>{t.extrasLabel}</h3>
               <div className="choice-stack">
-                {extras.map((extra) => (
-                  <label className="choice-row" key={extra.id}>
-                    <input
-                      type="checkbox"
-                      checked={selectedExtras.has(extra.id)}
-                      onChange={() => toggleExtra(extra.id)}
-                    />
-                    <span>
-                      <strong>{extra.name}</strong>
-                      <small>+ {formatPrice(extra.price)}</small>
-                    </span>
-                  </label>
-                ))}
+                {extras.map((extra) => {
+                  const qty = selectedExtras[extra.id] || 0;
+                  return (
+                    <div className="choice-row choice-row--extra" key={extra.id}>
+                      <div className="choice-info">
+                        <strong>{extra.name}</strong>
+                        <small>+ {formatPrice(extra.price)}</small>
+                      </div>
+                      <div className="qty-control qty-control--extra">
+                        <button type="button" onClick={() => updateExtraQuantity(extra.id, qty - 1)} aria-label={t.decreaseQty}>-</button>
+                        <input
+                          type="number"
+                          min="0"
+                          max="20"
+                          value={qty}
+                          onChange={(event) => updateExtraQuantity(extra.id, event.target.value)}
+                        />
+                        <button type="button" onClick={() => updateExtraQuantity(extra.id, qty + 1)} aria-label={t.increaseQty}>+</button>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
@@ -158,6 +180,6 @@ export default function ProductModal({ product, formatPrice, maxQuantity, onClos
 }
 
 function calculateTotal(product, selectedOption, selectedExtras) {
-  const extrasTotal = selectedExtras.reduce((sum, extra) => sum + extra.price, 0);
+  const extrasTotal = selectedExtras.reduce((sum, extra) => sum + (extra.price * extra.qty), 0);
   return product.basePrice + selectedOption.addPrice + extrasTotal;
 }
