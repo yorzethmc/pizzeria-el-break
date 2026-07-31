@@ -77,11 +77,13 @@ export default function ProductModal({ product, formatPrice, maxQuantity, onClos
         <div className="product-modal__head">
           <div>
             <span className="category-label">{product.categoryName}</span>
-            <h2 id="product-modal-title">{product.name}</h2>
+            <h2 id="modal-title">{product.name}</h2>
             {product.description && <p>{product.description}</p>}
           </div>
-          <button className="modal-close" type="button" onClick={onClose} aria-label={t.closeConfig}>
-            x
+          <button className="close-modal" type="button" onClick={onClose} aria-label="Cerrar modal">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M18 6L6 18M6 6l12 12"/>
+            </svg>
           </button>
         </div>
 
@@ -161,11 +163,6 @@ export default function ProductModal({ product, formatPrice, maxQuantity, onClos
                   />
                   <button type="button" onClick={() => updateQuantity(quantity + 1)} aria-label={t.increaseQty}>+</button>
                 </div>
-              </div>
-
-              <div className="modal-total">
-                <span>{t.configuredTotal}</span>
-                <strong>{formatPrice(lineTotal)}</strong>
               </div>
 
               <button className="primary-button" type="button" onClick={handleAddToCart}>
