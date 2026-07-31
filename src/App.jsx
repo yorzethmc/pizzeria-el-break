@@ -58,7 +58,14 @@ function getServiceStatus(date = new Date()) {
 }
 
 export default function App() {
-  const [lang, setLang] = useState(() => window.localStorage.getItem(LANGUAGE_STORAGE_KEY) || null);
+  const [lang, setLang] = useState(() => {
+    const saved = window.localStorage.getItem(LANGUAGE_STORAGE_KEY);
+    if (saved) {
+      document.documentElement.lang = saved;
+      return saved;
+    }
+    return null;
+  });
   const [view, setView] = useState("menu");
   const [activeCategory, setActiveCategory] = useState("todo");
   const [query, setQuery] = useState("");
@@ -137,6 +144,7 @@ export default function App() {
   function selectLanguage(code) {
     window.localStorage.setItem(LANGUAGE_STORAGE_KEY, code);
     setLang(code);
+    document.documentElement.lang = code;
   }
 
   function scrollToCart() {
@@ -334,9 +342,6 @@ export default function App() {
         lines.push(`  Extras: ${item.extras.map((extra) => `${extra.qty > 1 ? extra.qty + 'x ' : ''}${extra.name}`).join(", ")}`);
       }
       lines.push(`  Subtotal: ${formatPrice(item.subtotal)}`);
-      if (item.description) {
-        lines.push(`  ${item.description}`);
-      }
     });
 
     lines.push("------------------------------");
@@ -369,6 +374,9 @@ export default function App() {
             </button>
             <button type="button" className={lang === "en" ? "is-active" : ""} onClick={() => selectLanguage("en")}>
               EN
+            </button>
+            <button type="button" className={lang === "pt" ? "is-active" : ""} onClick={() => selectLanguage("pt")}>
+              PT
             </button>
           </div>
 

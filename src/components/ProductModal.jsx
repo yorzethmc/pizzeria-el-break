@@ -68,7 +68,13 @@ export default function ProductModal({ product, formatPrice, maxQuantity, onClos
 
   return (
     <div className="modal-backdrop" role="presentation" onMouseDown={onClose}>
-      <section className="product-modal" role="dialog" aria-modal="true" aria-labelledby="product-modal-title" onMouseDown={(event) => event.stopPropagation()}>
+      <section className="product-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" onMouseDown={(event) => event.stopPropagation()}>
+        <button className="modal-close" type="button" onClick={onClose} aria-label="Cerrar modal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M18 6L6 18M6 6l12 12"/>
+          </svg>
+        </button>
+
         {visualImage && (
           <div className="product-modal__image">
             <img src={`${import.meta.env.BASE_URL}${visualImage.startsWith("/") ? visualImage.slice(1) : visualImage}`} alt="" />
@@ -76,15 +82,9 @@ export default function ProductModal({ product, formatPrice, maxQuantity, onClos
         )}
         <div className="product-modal__head">
           <div>
-            <span className="category-label">{product.categoryName}</span>
             <h2 id="modal-title">{product.name}</h2>
             {product.description && <p>{product.description}</p>}
           </div>
-          <button className="close-modal" type="button" onClick={onClose} aria-label="Cerrar modal">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M18 6L6 18M6 6l12 12"/>
-            </svg>
-          </button>
         </div>
 
         <div className="product-modal__scrollable">
