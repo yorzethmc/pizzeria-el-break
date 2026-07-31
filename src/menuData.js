@@ -405,63 +405,34 @@ export const menuCategories = [
     items: [
       {
         id: "rg-te-frio",
-        section: "Gaseosas",
-        sectionEn: "Sodas",
+        section: "Naturales",
+        sectionEn: "Fresh Drinks",
         name: "Vaso Té Frío",
         nameEn: "Iced Tea Glass",
-        description: "Vaso de té frío Coca-Cola.",
-        descriptionEn: "Coca-Cola iced tea glass.",
+        description: "Vaso de té frío.",
+        descriptionEn: "Iced tea glass.",
         basePrice: 400,
         options: [{ id: "vaso", name: "Vaso", nameEn: "Glass", addPrice: 0, isDefault: true }],
-        extras: []
+        extras: [],
+        image: "/assets/menu/rn_natural.webp"
       },
       {
-        id: "rg-350",
+        id: "rg-gaseosas",
         section: "Gaseosas",
         sectionEn: "Sodas",
-        name: "Gaseosa 350 ml",
-        nameEn: "Soda 350 ml",
-        description: "Bebida Coca-Cola, presentación 350 ml.",
-        descriptionEn: "Coca-Cola beverage, 350 ml.",
-        basePrice: 900,
-        options: [{ id: "unico", name: "350 ml", nameEn: "350 ml", addPrice: 0, isDefault: true }],
-        extras: []
-      },
-      {
-        id: "rg-600",
-        section: "Gaseosas",
-        sectionEn: "Sodas",
-        name: "Gaseosa 600 ml",
-        nameEn: "Soda 600 ml",
-        description: "Bebida Coca-Cola, presentación 600 ml.",
-        descriptionEn: "Coca-Cola beverage, 600 ml.",
-        basePrice: 1300,
-        options: [{ id: "unico", name: "600 ml", nameEn: "600 ml", addPrice: 0, isDefault: true }],
-        extras: []
-      },
-      {
-        id: "rg-15l",
-        section: "Gaseosas",
-        sectionEn: "Sodas",
-        name: "Gaseosa 1.5 L",
-        nameEn: "Soda 1.5 L",
-        description: "Bebida Coca-Cola, presentación 1.5 L.",
-        descriptionEn: "Coca-Cola beverage, 1.5 L.",
-        basePrice: 1800,
-        options: [{ id: "unico", name: "1.5 L", nameEn: "1.5 L", addPrice: 0, isDefault: true }],
-        extras: []
-      },
-      {
-        id: "rg-25l",
-        section: "Gaseosas",
-        sectionEn: "Sodas",
-        name: "Gaseosa 2.5 L",
-        nameEn: "Soda 2.5 L",
-        description: "Bebida Coca-Cola, presentación 2.5 L.",
-        descriptionEn: "Coca-Cola beverage, 2.5 L.",
-        basePrice: 2500,
-        options: [{ id: "unico", name: "2.5 L", nameEn: "2.5 L", addPrice: 0, isDefault: true }],
-        extras: []
+        name: "Bebida Gaseosa",
+        nameEn: "Soda",
+        description: "Bebida gaseosa en tu tamaño preferido (Coca-Cola, Fanta, Fresca, Sprite).",
+        descriptionEn: "Soda in your favorite size (Coca-Cola, Fanta, Fresca, Sprite).",
+        basePrice: 0,
+        options: [
+          { id: "350ml", name: "350 ml", nameEn: "350 ml", addPrice: 900, isDefault: true },
+          { id: "600ml", name: "600 ml", nameEn: "600 ml", addPrice: 1300 },
+          { id: "15l", name: "1.5 L", nameEn: "1.5 L", addPrice: 1800 },
+          { id: "25l", name: "2.5 L", nameEn: "2.5 L", addPrice: 2500 }
+        ],
+        extras: [],
+        image: "/assets/menu/rg_coca.webp"
       },
       {
         id: "rn-agua",

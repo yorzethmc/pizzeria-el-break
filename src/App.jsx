@@ -70,7 +70,7 @@ export default function App() {
     return [];
   });
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [orderType, setOrderType] = useState("express");
+  const [orderType, setOrderType] = useState("pickup");
   const [customerName, setCustomerName] = useState("");
   const [address, setAddress] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("sinpe");
