@@ -4,7 +4,7 @@ import ProductModal from "./components/ProductModal.jsx";
 import LanguageGate from "./components/LanguageGate.jsx";
 import CartFab from "./components/CartFab.jsx";
 import AboutPage from "./components/AboutPage.jsx";
-import { menuCategories } from "./menuData.js";
+import { menuCategories, allMenuItems } from "./menuData.js";
 import { translations, localizeCategories } from "./i18n.js";
 
 const MAX_QTY = 50;
@@ -336,10 +336,20 @@ export default function App() {
     lines.push("------------------------------");
     lines.push("*Detalle del pedido*");
     cartItems.forEach((item) => {
-      lines.push(`- ${item.quantity} x ${item.name}`);
-      lines.push(`  Opcion: ${item.option.name}`);
+      const originalItem = allMenuItems.find(m => m.id === item.productId);
+      const originalName = originalItem ? originalItem.name : item.name;
+      const originalOption = originalItem ? originalItem.options.find(o => o.id === item.option.id) : null;
+      const optionName = originalOption ? originalOption.name : item.option.name;
+
+      lines.push(`- ${item.quantity} x ${originalName}`);
+      lines.push(`  Opcion: ${optionName}`);
       if (item.extras.length > 0) {
-        lines.push(`  Extras: ${item.extras.map((extra) => `${extra.qty > 1 ? extra.qty + 'x ' : ''}${extra.name}`).join(", ")}`);
+        const extraNames = item.extras.map((extra) => {
+          const originalExtra = originalItem ? originalItem.extras.find(e => e.id === extra.id) : null;
+          const eName = originalExtra ? originalExtra.name : extra.name;
+          return `${extra.qty > 1 ? extra.qty + 'x ' : ''}${eName}`;
+        });
+        lines.push(`  Extras: ${extraNames.join(", ")}`);
       }
       lines.push(`  Subtotal: ${formatPrice(item.subtotal)}`);
     });

@@ -330,6 +330,10 @@ function pick(obj, field, lang) {
     const enField = `${field}En`;
     if (obj[enField]) return obj[enField];
   }
+  if (lang === "pt") {
+    const ptField = `${field}Pt`;
+    if (obj[ptField]) return obj[ptField];
+  }
   return obj[field];
 }
 
