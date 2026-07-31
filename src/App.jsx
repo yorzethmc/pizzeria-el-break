@@ -1,22 +1,28 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import ProductCard from "./components/ProductCard.jsx";
 import ProductModal from "./components/ProductModal.jsx";
-import { allMenuItems, menuCategories } from "./menuData.js";
+import LanguageGate from "./components/LanguageGate.jsx";
+import CartFab from "./components/CartFab.jsx";
+import AboutPage from "./components/AboutPage.jsx";
+import { menuCategories } from "./menuData.js";
+import { translations, localizeCategories } from "./i18n.js";
 
 const MAX_QTY = 50;
-const WHATSAPP_PHONE = "+50662331212";
+const WHATSAPP_PHONE = "50683161336";
 const CREATOR_PHONE = "+50688292124";
 const CREATOR_INSTAGRAM = "yorzethmc";
 const SERVICE_TIME_ZONE = "America/Costa_Rica";
 const SERVICE_WINDOWS = {
-  Fri: [[17 * 60 + 30, 21 * 60 + 30]],
-  Sat: [[17 * 60 + 30, 21 * 60 + 30]],
-  Sun: [
-    [12 * 60 + 30, 15 * 60],
-    [17 * 60 + 30, 21 * 60]
-  ]
+  Mon: [[11 * 60, 21 * 60]],
+  Tue: [[11 * 60, 21 * 60]],
+  Wed: [[11 * 60, 21 * 60]],
+  Thu: [[11 * 60, 21 * 60]],
+  Fri: [[11 * 60, 21 * 60]],
+  Sat: [[11 * 60, 21 * 60]]
 };
-const SCHEDULE_TEXT = "Viernes y sabado de 5:30 p. m. a 9:30 p. m. Domingo de 12:30 p. m. a 3:00 p. m. y de 5:30 p. m. a 9:00 p. m.";
+const LANGUAGE_STORAGE_KEY = "el-break-lang";
+// El modo Salon queda oculto para los clientes hasta que el dueno del negocio lo habilite aqui.
+const ENABLE_SALON_MODE = false;
 
 const currency = new Intl.NumberFormat("es-CR", {
   style: "currency",
@@ -52,6 +58,8 @@ function getServiceStatus(date = new Date()) {
 }
 
 export default function App() {
+  const [lang, setLang] = useState(() => window.localStorage.getItem(LANGUAGE_STORAGE_KEY) || null);
+  const [view, setView] = useState("menu");
   const [activeCategory, setActiveCategory] = useState("todo");
   const [query, setQuery] = useState("");
   const [cart, setCart] = useState([]);
@@ -69,6 +77,13 @@ export default function App() {
   const [isLocating, setIsLocating] = useState(false);
   const [now, setNow] = useState(() => new Date());
 
+  // Theme and Salon mode additions
+  const [theme, setTheme] = useState("theme-fast-food");
+  const [tableNumber, setTableNumber] = useState("");
+  const cartPanelRef = useRef(null);
+
+  const t = translations[lang || "es"];
+
   useEffect(() => {
     const interval = window.setInterval(() => setNow(new Date()), 60000);
     return () => window.clearInterval(interval);
@@ -76,21 +91,47 @@ export default function App() {
 
   const serviceStatus = useMemo(() => getServiceStatus(now), [now]);
 
+  const localizedCategories = useMemo(() => localizeCategories(menuCategories, lang || "es"), [lang]);
+
+  const localizedMenuItems = useMemo(
+    () =>
+      localizedCategories.flatMap((category) =>
+        category.items.map((item) => ({
+          ...item,
+          categoryId: category.id,
+          categoryName: category.name,
+          categoryIcon: category.icon,
+          categoryColor: category.color,
+          categoryImage: category.image
+        }))
+      ),
+    [localizedCategories]
+  );
+
   const filteredItems = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
-    return allMenuItems.filter((item) => {
+    return localizedMenuItems.filter((item) => {
       const matchesCategory = activeCategory === "todo" || item.categoryId === activeCategory;
       const optionText = (item.options || []).map((option) => option.name).join(" ");
       const extraText = (item.extras || []).map((extra) => extra.name).join(" ");
       const searchable = `${item.name} ${item.description || ""} ${item.categoryName} ${optionText} ${extraText}`.toLowerCase();
       return matchesCategory && (!normalizedQuery || searchable.includes(normalizedQuery));
     });
-  }, [activeCategory, query]);
+  }, [localizedMenuItems, activeCategory, query]);
 
   const cartItems = cart;
 
   const cartTotal = cartItems.reduce((sum, item) => sum + item.subtotal, 0);
   const itemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+
+  function selectLanguage(code) {
+    window.localStorage.setItem(LANGUAGE_STORAGE_KEY, code);
+    setLang(code);
+  }
+
+  function scrollToCart() {
+    cartPanelRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
 
   function addToCart(configuredProduct) {
     setCart((current) => {
@@ -123,23 +164,27 @@ export default function App() {
     const nextErrors = [];
 
     if (!serviceStatus.isOpen) {
-      nextErrors.push("El servicio no esta disponible en este momento.");
+      nextErrors.push(t.errorServiceClosed);
     }
 
     if (cartItems.length === 0) {
-      nextErrors.push("Selecciona al menos un producto del menu.");
+      nextErrors.push(t.errorEmptyCart);
     }
 
     if (!customerName.trim()) {
-      nextErrors.push("Escribe el nombre completo.");
+      nextErrors.push(t.errorName);
     }
 
     if (orderType === "express" && !address.trim()) {
-      nextErrors.push("Escribe la direccion de entrega.");
+      nextErrors.push(t.errorAddress);
+    }
+
+    if (orderType === "salon" && !tableNumber.trim()) {
+      nextErrors.push(t.errorTable);
     }
 
     if (orderType === "express" && paymentMethod === "efectivo" && !cashAmount.trim()) {
-      nextErrors.push("Indica con cuanto paga la persona.");
+      nextErrors.push(t.errorCash);
     }
 
     return nextErrors;
@@ -164,12 +209,13 @@ export default function App() {
 
     setConfirmation({
       total: cartTotal,
-      message: "Se abrio WhatsApp con el pedido listo para enviar."
+      message: t.confirmationMessage
     });
     setCart([]);
     setCustomerName("");
     setAddress("");
     setCashAmount("");
+    setTableNumber("");
     setLocation(null);
     setLocationStatus("");
     setLocationError("");
@@ -181,7 +227,7 @@ export default function App() {
     setLocationStatus("");
 
     if (!navigator.geolocation) {
-      setLocationError("Este navegador no permite tomar la ubicacion actual.");
+      setLocationError(t.locationUnsupported);
       return;
     }
 
@@ -199,16 +245,16 @@ export default function App() {
           googleMapsUrl: buildGoogleMapsUrl(latitude, longitude),
           wazeUrl: buildWazeUrl(latitude, longitude)
         });
-        setLocationStatus("Ubicacion lista. Se enviara en el mensaje de WhatsApp.");
+        setLocationStatus(t.locationReady);
         setIsLocating(false);
       },
       (error) => {
         const errorMessages = {
-          1: "El cliente no dio permiso para usar su ubicacion.",
-          2: "No se pudo detectar la ubicacion actual.",
-          3: "La ubicacion tardo demasiado en responder."
+          1: t.locationError1,
+          2: t.locationError2,
+          3: t.locationError3
         };
-        setLocationError(errorMessages[error.code] || "No se pudo obtener la ubicacion.");
+        setLocationError(errorMessages[error.code] || t.locationErrorDefault);
         setIsLocating(false);
       },
       {
@@ -225,13 +271,21 @@ export default function App() {
     setLocationError("");
   }
 
+  // El mensaje de WhatsApp siempre se envia en espanol: lo recibe el personal del local, no el cliente.
   function buildWhatsappMessage() {
     const isExpress = orderType === "express";
+    const isSalon = orderType === "salon";
+    const title = isSalon ? `*MESA ${tableNumber.trim()} - NUEVO PEDIDO*` : "*NUEVO PEDIDO - Pizzeria El Break*";
+
+    let tipo = "Para llevar";
+    if (isExpress) tipo = "Express";
+    if (isSalon) tipo = "En Salon";
+
     const lines = [
-      "*POLLOS EMI - NUEVO PEDIDO*",
+      title,
       "------------------------------",
       "",
-      `*Tipo:* ${isExpress ? "Express" : "Para llevar"}`,
+      `*Tipo:* ${tipo}`,
       `*Cliente:* ${customerName.trim()}`
     ];
 
@@ -284,39 +338,69 @@ export default function App() {
   }
 
   return (
-    <div className="app">
+    <div className={`app ${theme}`}>
+      {!lang && <LanguageGate onSelect={selectLanguage} />}
+
       <header className="hero">
         <div className="hero__content">
           <div className="brand">
-            <span className="brand__mark">PE</span>
+            <span className="brand__mark">
+              <img src={`${import.meta.env.BASE_URL}assets/menu/elBreakLogo.jpg`} alt="Pizzeria El Break" />
+            </span>
             <div>
-              <p className="eyebrow">Menu interactivo</p>
-              <h1>Pollos Emi</h1>
+              <p className="eyebrow">{t.tagline}</p>
+              <h1>Pizzeria El Break</h1>
             </div>
           </div>
 
+          <div className="language-toggle" role="group" aria-label={t.changeLanguage}>
+            <button type="button" className={lang === "es" || !lang ? "is-active" : ""} onClick={() => selectLanguage("es")}>
+              ES
+            </button>
+            <button type="button" className={lang === "en" ? "is-active" : ""} onClick={() => selectLanguage("en")}>
+              EN
+            </button>
+          </div>
+
           <div className="hero__summary">
-            <span>{allMenuItems.length} opciones</span>
+            <span>{localizedMenuItems.length} {t.optionsCount}</span>
             <strong>{formatPrice(cartTotal)}</strong>
           </div>
         </div>
       </header>
 
+      {view === "menu" && (
+        <div className="about-teaser">
+          <button type="button" className="about-teaser__button" onClick={() => setView("about")}>
+            <span className="about-teaser__icon" aria-hidden="true">📖</span>
+            {t.about.linkLabel}
+          </button>
+        </div>
+      )}
+
+      {view === "about" ? (
+        <AboutPage
+          t={t}
+          schedule={t.schedule}
+          whatsappUrl={buildWhatsappUrl(t.about.followUs)}
+          onBack={() => setView("menu")}
+        />
+      ) : (
       <main className="menu-layout">
           <section className="menu-main" aria-labelledby="menu-title">
             <div className="tool-row">
               <div>
-                <p className="eyebrow">Comida rapida</p>
-                <h2 id="menu-title">Elige y arma el pedido</h2>
+                <p className="eyebrow">{t.artisanEyebrow}</p>
+                <h2 id="menu-title">{t.chooseOrder}</h2>
               </div>
 
               <label className="search-box">
-                <span>Buscar</span>
+                <span>{t.search}</span>
                 <input
                   type="search"
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
-                  placeholder="pollo, papas, bebida..."
+                  placeholder={t.searchPlaceholder}
                 />
               </label>
             </div>
@@ -328,9 +412,9 @@ export default function App() {
                 onClick={() => setActiveCategory("todo")}
               >
                 <span>🔥</span>
-                Todo
+                {t.all}
               </button>
-              {menuCategories.map((category) => (
+              {localizedCategories.map((category) => (
                 <button
                   className={`category-pill ${activeCategory === category.id ? "is-active" : ""}`}
                   type="button"
@@ -343,48 +427,30 @@ export default function App() {
               ))}
             </div>
 
-            <div className="category-showcase">
-              {menuCategories.map((category) => (
-                <button
-                  type="button"
-                  className={`showcase-card tone-${category.color}`}
-                  key={category.id}
-                  onClick={() => setActiveCategory(category.id)}
-                >
-                  {category.image && <img src={`${import.meta.env.BASE_URL}${category.image.startsWith('/') ? category.image.slice(1) : category.image}`} alt="" />}
-                  <span className="showcase-card__shade" aria-hidden="true" />
-                  <span className="showcase-card__icon">{category.icon}</span>
-                  <span>
-                    <strong>{category.name}</strong>
-                    <small>{category.items.length} productos base</small>
-                  </span>
-                </button>
-              ))}
-            </div>
-
             <div className="menu-grid">
               {filteredItems.length > 0 ? (
                 filteredItems.map((item) => (
                   <ProductCard
                     product={item}
                     formatPrice={formatPrice}
+                    t={t}
                     key={item.id}
                     onConfigure={() => setSelectedProduct(item)}
                   />
                 ))
               ) : (
                 <div className="empty-state">
-                  No encontre platos con esa busqueda.
+                  {t.noResults}
                 </div>
               )}
             </div>
           </section>
 
-          <aside className="cart-panel" aria-label="Resumen del pedido">
+          <aside className="cart-panel" aria-label="Resumen del pedido" ref={cartPanelRef}>
             <div className="cart-panel__head">
               <div>
-                <p className="eyebrow">Pedido</p>
-                <h2>Resumen</h2>
+                <p className="eyebrow">{t.orderEyebrow}</p>
+                <h2>{t.summary}</h2>
               </div>
               <span className="cart-badge">{itemCount}</span>
             </div>
@@ -392,51 +458,56 @@ export default function App() {
             {cartItems.length > 0 ? (
               <ul className="cart-list">
                 {cartItems.map((item) => (
-                  <li key={item.id} className="cart-line">
+                  <li key={item.cartId} className="cart-line">
                     <div>
                       <strong>{item.name}</strong>
                       <span>{item.quantity} x {item.option.name}</span>
                       {item.extras.length > 0 && (
-                        <span>Extras: {item.extras.map((extra) => extra.name).join(", ")}</span>
+                        <span>{t.extrasLabel}: {item.extras.map((extra) => extra.name).join(", ")}</span>
                       )}
                     </div>
                     <div className="cart-line__actions">
                       <b>{formatPrice(item.subtotal)}</b>
                       <button type="button" onClick={() => removeCartItem(item.cartId)}>
-                        Quitar
+                        {t.remove}
                       </button>
                     </div>
                   </li>
                 ))}
               </ul>
             ) : (
-              <p className="empty-state">Agrega productos del menu.</p>
+              <p className="empty-state">{t.emptyCart}</p>
             )}
 
             <div className="total-row">
-              <span>{orderType === "express" ? "Total sin express" : "Total"}</span>
+              <span>{orderType === "express" ? t.totalNoExpress : t.total}</span>
               <strong>{formatPrice(cartTotal)}</strong>
             </div>
             {orderType === "express" && (
-              <p className="total-note">Este monto no contempla el costo del express.</p>
+              <p className="total-note">{t.totalNote}</p>
             )}
 
             <div className={`service-card ${serviceStatus.isOpen ? "service-card--open" : "service-card--closed"}`}>
-              <strong>{serviceStatus.isOpen ? "Servicio disponible ahora" : "Servicio no disponible ahora"}</strong>
-              <p>{SCHEDULE_TEXT}</p>
-              {!serviceStatus.isOpen && <p>Puedes revisar el menu, pero no se pueden tomar ordenes fuera de horario.</p>}
+              <strong>{serviceStatus.isOpen ? t.serviceOpen : t.serviceClosed}</strong>
+              <p>{t.schedule}</p>
+              {!serviceStatus.isOpen && <p>{t.serviceClosedNote}</p>}
             </div>
 
             <form className="checkout-form" onSubmit={submitOrder}>
               <div className="mode-box">
-                <span>Tipo de pedido</span>
-                <div className="mode-switch" role="radiogroup" aria-label="Tipo de pedido">
+                <span>{t.orderType}</span>
+                <div
+                  className="mode-switch"
+                  role="radiogroup"
+                  aria-label={t.orderType}
+                  style={{ gridTemplateColumns: `repeat(${ENABLE_SALON_MODE ? 3 : 2}, 1fr)` }}
+                >
                   <button
                     className={orderType === "express" ? "is-active" : ""}
                     type="button"
                     onClick={() => setOrderType("express")}
                   >
-                    Express
+                    {t.express}
                   </button>
                   <button
                     className={orderType === "pickup" ? "is-active" : ""}
@@ -446,68 +517,80 @@ export default function App() {
                       clearLocation();
                     }}
                   >
-                    Para llevar
+                    {t.pickup}
                   </button>
+                  {ENABLE_SALON_MODE && (
+                    <button
+                      className={orderType === "salon" ? "is-active" : ""}
+                      type="button"
+                      onClick={() => {
+                        setOrderType("salon");
+                        clearLocation();
+                      }}
+                    >
+                      {t.salon}
+                    </button>
+                  )}
                 </div>
               </div>
 
               <label>
-                Nombre completo
+                {t.fullName}
                 <input value={customerName} onChange={(event) => setCustomerName(event.target.value)} />
               </label>
 
               {orderType === "express" && (
                 <>
                   <label>
-                    Direccion de entrega
+                    {t.deliveryAddress}
                     <textarea value={address} onChange={(event) => setAddress(event.target.value)} />
                   </label>
 
                   <div className="payment-box">
-                    <span>Metodo de pago</span>
-                    <div className="payment-options" role="radiogroup" aria-label="Metodo de pago">
+                    <span>{t.paymentMethod}</span>
+                    <div className="payment-options" role="radiogroup" aria-label={t.paymentMethod}>
                       <button
                         className={paymentMethod === "sinpe" ? "is-active" : ""}
                         type="button"
                         onClick={() => setPaymentMethod("sinpe")}
                       >
-                        SINPE
+                        {t.sinpe}
                       </button>
                       <button
                         className={paymentMethod === "efectivo" ? "is-active" : ""}
                         type="button"
                         onClick={() => setPaymentMethod("efectivo")}
                       >
-                        Efectivo
+                        {t.cash}
                       </button>
                     </div>
                   </div>
 
                   {paymentMethod === "efectivo" && (
                     <label>
-                      Con cuanto paga
+                      {t.cashAmount}
                       <input
                         value={cashAmount}
                         onChange={(event) => setCashAmount(event.target.value)}
-                        placeholder="Ej: 10000"
+                        placeholder={t.cashPlaceholder}
                       />
                     </label>
                   )}
 
                   <div className="location-box">
                     <div className="location-copy">
-                      <strong>Ubicacion por GPS</strong>
-                      <p>Para enviarla por WhatsApp, el cliente debe aceptar compartir la ubicacion cuando el navegador lo pregunte.</p>
+                      <strong>{t.gpsTitle}</strong>
+                      <p>{t.gpsDescription}</p>
                     </div>
                     <div className="location-actions">
                       <button className="location-button" type="button" onClick={requestLocation} disabled={isLocating}>
                         <span aria-hidden="true">📍</span>
-                        <strong>{isLocating ? "Buscando ubicacion..." : "Compartir ubicacion"}</strong>
-                        <small>Debes aceptar el permiso</small>
+                        <strong>{isLocating ? t.locating : t.shareLocation}</strong>
+                        <small>{t.locationHint}</small>
                       </button>
                       {location && (
                         <button className="ghost-button" type="button" onClick={clearLocation}>
-                          Quitar ubicacion
+                          {t.removeLocation}
                         </button>
                       )}
                     </div>
@@ -523,6 +606,17 @@ export default function App() {
                 </>
               )}
 
+              {ENABLE_SALON_MODE && orderType === "salon" && (
+                <label>
+                  {t.tableNumber}
+                  <input
+                    value={tableNumber}
+                    onChange={(event) => setTableNumber(event.target.value)}
+                    placeholder={t.tablePlaceholder}
+                  />
+                </label>
+              )}
+
               {errors.length > 0 && (
                 <div className="alert alert--error" role="alert">
                   {errors.map((error) => (
@@ -532,18 +626,19 @@ export default function App() {
               )}
 
               <button className="primary-button" type="submit" disabled={!serviceStatus.isOpen}>
-                {serviceStatus.isOpen ? "Enviar pedido por WhatsApp" : "Fuera de horario"}
+                {serviceStatus.isOpen ? t.submitOrder : t.outsideHours}
               </button>
             </form>
 
             {confirmation && (
               <div className="alert alert--success">
                 <strong>{confirmation.message}</strong>
-                <p>Total: {formatPrice(confirmation.total)}</p>
+                <p>{t.confirmationTotal}: {formatPrice(confirmation.total)}</p>
               </div>
             )}
           </aside>
       </main>
+      )}
 
       {selectedProduct && (
         <ProductModal
@@ -552,10 +647,19 @@ export default function App() {
           maxQuantity={MAX_QTY}
           onClose={() => setSelectedProduct(null)}
           addToCart={addToCart}
+          whatsappUrl={buildWhatsappUrl(`Hola, quiero consultar el precio de: ${selectedProduct.name}`)}
+          t={t}
         />
       )}
 
+      {view === "menu" && <CartFab itemCount={itemCount} label={t.floatingCheckout} onClick={scrollToCart} />}
+
       <footer className="site-footer">
+        <div style={{ marginBottom: "20px", display: "flex", gap: "10px", justifyContent: "center", flexWrap: "wrap" }}>
+          <button className={`secondary-button ${theme === "theme-fast-food" ? "is-active" : ""}`} onClick={() => setTheme("theme-fast-food")}>🎨 {t.themeFastFood}</button>
+          <button className={`secondary-button ${theme === "theme-luxury" ? "is-active" : ""}`} onClick={() => setTheme("theme-luxury")}>🍷 {t.themeLuxury}</button>
+          <button className={`secondary-button ${theme === "theme-classic" ? "is-active" : ""}`} onClick={() => setTheme("theme-classic")}>☕ {t.themeClassic}</button>
+        </div>
         <span>✨ Created by Erick Yorzeth Masis Cavero ✨</span>
         <div className="footer-links">
           <a href={`https://wa.me/${CREATOR_PHONE.replace(/\D/g, "")}`} target="_blank" rel="noreferrer">

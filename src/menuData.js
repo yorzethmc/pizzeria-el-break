@@ -1,350 +1,453 @@
-export const polloSauceExtras = [
-  { id: "salsa-bbq", name: "Salsa BBQ", price: 500 },
-  { id: "salsa-bufalo", name: "Salsa bufalo", price: 500 },
-  { id: "salsa-ranch", name: "Salsa ranch", price: 500 },
-  { id: "salsa-mostaza-miel", name: "Salsa mostaza miel", price: 500 },
-  { id: "salsa-tartara", name: "Salsa tartara", price: 500 },
-  { id: "salsa-rosada", name: "Salsa rosada", price: 500 },
-  { id: "salsa-queso", name: "Salsa queso", price: 500 },
-  { id: "envase-adicional", name: "Envase adicional", price: 200 }
+const pizzaFlavorOptions = [
+  { id: "jamon-queso", name: "Jamón y Queso", nameEn: "Ham and Cheese", addPrice: 0, isDefault: true },
+  { id: "pepperoni", name: "Pepperoni", nameEn: "Pepperoni", addPrice: 0 }
 ];
 
-export const burgerExtras = [
-  { id: "extra-tocineta", name: "Extra tocineta", price: 300 },
-  { id: "extra-jamonada", name: "Extra jamonada", price: 300 }
+const naturalFlavors = [
+  ["Fresa-Hierbabuena", "Strawberry-Mint"],
+  ["Mora-Fresa-Arándano", "Blackberry-Strawberry-Blueberry"],
+  ["Mango-Fresa-Maracuyá", "Mango-Strawberry-Passionfruit"],
+  ["Guanábana", "Soursop"],
+  ["Melón", "Cantaloupe"],
+  ["Mora", "Blackberry"],
+  ["Sandía", "Watermelon"],
+  ["Piña", "Pineapple"],
+  ["Fresa", "Strawberry"],
+  ["Cas", "Cas (Costa Rican sour guava)"]
 ];
+
+function naturalFlavorOptions() {
+  return naturalFlavors.map(([flavor, flavorEn], index) => ({
+    id: `sabor-${flavor.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
+    name: flavor,
+    nameEn: flavorEn,
+    addPrice: 0,
+    isDefault: index === 0
+  }));
+}
+
+function pizzaSizeOptions(matrix) {
+  return [
+    { id: "personal", name: "Personal (4 porciones)", nameEn: "Personal (4 slices)", addPrice: 0, isDefault: true },
+    { id: "pequena", name: "Pequeña (6 porciones)", nameEn: "Small (6 slices)", addPrice: matrix.pequena - matrix.personal },
+    { id: "mediana", name: "Mediana (8 porciones)", nameEn: "Medium (8 slices)", addPrice: matrix.mediana - matrix.personal },
+    { id: "grande", name: "Grande (12 porciones)", nameEn: "Large (12 slices)", addPrice: matrix.grande - matrix.personal }
+  ];
+}
+
+// Precio de extra estimado (₡500 parejo) — pendiente de confirmar tarifa real con el local.
+const pizzaExtras = [
+  { id: "extra-queso", name: "Extra queso mozzarella", nameEn: "Extra mozzarella cheese", price: 500 },
+  { id: "extra-jamon", name: "Extra jamón", nameEn: "Extra ham", price: 500 },
+  { id: "extra-pepperoni", name: "Extra pepperoni", nameEn: "Extra pepperoni", price: 500 },
+  { id: "extra-pina", name: "Extra piña", nameEn: "Extra pineapple", price: 500 },
+  { id: "extra-portobello", name: "Extra hongos portobello", nameEn: "Extra portobello mushrooms", price: 500 },
+  { id: "extra-pollo", name: "Extra pollo", nameEn: "Extra chicken", price: 500 },
+  { id: "extra-chile", name: "Extra chile dulce", nameEn: "Extra bell pepper", price: 500 },
+  { id: "extra-cebolla", name: "Extra cebolla", nameEn: "Extra onion", price: 500 },
+  { id: "extra-aceitunas", name: "Extra aceitunas", nameEn: "Extra olives", price: 500 },
+  { id: "extra-bolonesa", name: "Extra carne boloñesa", nameEn: "Extra ground beef bolognese", price: 500 }
+];
+
+function pizza(id, name, nameEn, description, descriptionEn, matrix, image) {
+  return {
+    id,
+    name,
+    nameEn,
+    description,
+    descriptionEn,
+    basePrice: matrix.personal,
+    options: pizzaSizeOptions(matrix),
+    extras: pizzaExtras,
+    image: image || null
+  };
+}
+
+const tierA = { personal: 2000, pequena: 3500, mediana: 6500, grande: 9000 };
+const tierB = { personal: 2500, pequena: 4000, mediana: 7000, grande: 9500 };
+const tierC = { personal: 3000, pequena: 4500, mediana: 7500, grande: 10500 };
 
 export const menuCategories = [
   {
-    id: "pollo",
-    name: "Pollo",
-    shortName: "Pollo",
-    icon: "🍗",
+    id: "cat-pizzas",
+    name: "Pizzas",
+    nameEn: "Pizzas",
+    shortName: "Pizzas",
+    shortNameEn: "Pizzas",
+    icon: "🍕",
     color: "red",
-    image: "/assets/menu/pollo.png",
+    image: null,
     items: [
-      {
-        id: "pechuga-ala",
-        name: "Porcion de Pechuga y Ala",
-        description: "Pechuga y ala de pollo frito.",
-        basePrice: 2000,
-        options: [
-          { id: "sencilla", name: "Sencilla", addPrice: 0, isDefault: true }
-        ],
-        extras: polloSauceExtras
-      },
-      {
-        id: "cuarto-muslo",
-        name: "Porcion de Cuarto y Muslo",
-        description: "Cuarto y muslo de pollo frito.",
-        basePrice: 1900,
-        options: [
-          { id: "sencilla", name: "Sencilla", addPrice: 0, isDefault: true }
-        ],
-        extras: polloSauceExtras
-      },
-      {
-        id: "piezas-pollo",
-        name: "Piezas de pollo",
-        description: "Ordenes familiares y alitas empanizadas.",
-        basePrice: 3600,
-        options: [
-          { id: "4-piezas", name: "4 piezas de pollo", addPrice: 0, isDefault: true },
-          { id: "8-alas", name: "8 alas empanizadas", addPrice: 200 },
-          { id: "20-alas", name: "20 alas empanizadas", addPrice: 2400 },
-          { id: "8-alas-salsa", name: "8 alas con salsa por aparte", addPrice: 400 },
-          { id: "20-alas-salsa", name: "20 alas con salsa por aparte", addPrice: 2800 }
-        ],
-        extras: polloSauceExtras
-      },
-      {
-        id: "palomitas-pollo",
-        name: "Palomitas de pollo",
-        description: "Palomitas sencillas o con salsa.",
-        basePrice: 1000,
-        options: [
-          { id: "sencillas", name: "Sencillas", addPrice: 0, isDefault: true },
-          { id: "salsa-aparte", name: "Con salsa por aparte", addPrice: 800 },
-          { id: "tartara-jalapeno", name: "Con salsa tartara y jalapeno", addPrice: 850 }
-        ],
-        extras: polloSauceExtras
-      },
-      {
-        id: "wrapp-pollo",
-        name: "Wrapp de pollo",
-        description: "Wrapp de pollo con papas.",
-        basePrice: 2600,
-        options: [
-          { id: "con-papas", name: "Con papas", addPrice: 0, isDefault: true }
-        ],
-        extras: polloSauceExtras
-      }
+      pizza(
+        "p-jamon-queso",
+        "Jamón y Queso",
+        "Ham and Cheese",
+        "Jamón de cerdo de alta calidad, queso mozzarella junto con nuestra única Salsa Pomodoro de tomate pera.",
+        "High-quality pork ham and mozzarella cheese, with our signature homemade pear-tomato Pomodoro sauce.",
+        tierA,
+        "/assets/menu/p_jamon_queso.webp"
+      ),
+      pizza(
+        "p-pepperoni",
+        "Pepperoni",
+        "Pepperoni",
+        "Sabroso pepperoni, queso mozzarella junto con nuestra única Salsa Pomodoro de tomate pera.",
+        "Tasty pepperoni and mozzarella cheese, with our signature homemade pear-tomato Pomodoro sauce.",
+        tierA,
+        "/assets/menu/p_pepperoni.webp"
+      ),
+      pizza(
+        "p-hawaiana",
+        "Hawaiana",
+        "Hawaiian",
+        "Sabroso jamón de alta calidad, piña, queso mozzarella junto con nuestra única Salsa Pomodoro de tomate pera.",
+        "Tasty high-quality ham, pineapple and mozzarella cheese, with our signature homemade pear-tomato Pomodoro sauce.",
+        tierB,
+        "/assets/menu/p_hawaiana.webp"
+      ),
+      pizza(
+        "p-jamon-hongos",
+        "Jamón y Hongos",
+        "Ham and Mushrooms",
+        "Jamón de cerdo de alta calidad, queso mozzarella, hongos portobello junto con nuestra única Salsa Pomodoro de tomate pera.",
+        "High-quality pork ham, mozzarella cheese and portobello mushrooms, with our signature homemade pear-tomato Pomodoro sauce.",
+        tierB,
+        "/assets/menu/p_jamon_hongos.webp"
+      ),
+      pizza(
+        "p-pollo-bbq",
+        "Pollo BBQ",
+        "BBQ Chicken",
+        "Delicioso pollo arreglado, queso mozzarella, jamón, junto con nuestra única Salsa Pomodoro de tomate pera.",
+        "Delicious seasoned chicken, mozzarella cheese and ham, with our signature homemade pear-tomato Pomodoro sauce.",
+        tierB,
+        "/assets/menu/p_pollo_bbq.webp"
+      ),
+      pizza(
+        "p-vegetariana",
+        "Vegetariana",
+        "Vegetarian",
+        "Sabrosos hongos portobello, queso mozzarella, chile, cebolla, aceitunas, junto con nuestra única Salsa Pomodoro de tomate pera.",
+        "Tasty portobello mushrooms, mozzarella cheese, bell pepper, onion and olives, with our signature homemade pear-tomato Pomodoro sauce.",
+        tierB,
+        "/assets/menu/p_vegetariana.webp"
+      ),
+      pizza(
+        "p-exotica",
+        "Exótica",
+        "Exotic",
+        "Sabroso pepperoni, queso mozzarella, chile, cebolla, hongos portobello junto con nuestra única Salsa Pomodoro de tomate pera.",
+        "Tasty pepperoni, mozzarella cheese, bell pepper, onion and portobello mushrooms, with our signature homemade pear-tomato Pomodoro sauce.",
+        tierB,
+        "/assets/menu/p_exotica.webp"
+      ),
+      pizza(
+        "p-suprema",
+        "Suprema",
+        "Supreme",
+        "Sabrosa carne boloñesa, queso mozzarella, chile, cebolla, junto con nuestra única Salsa Pomodoro de tomate pera.",
+        "Tasty ground beef bolognese, mozzarella cheese, bell pepper and onion, with our signature homemade pear-tomato Pomodoro sauce.",
+        tierB,
+        "/assets/menu/p_suprema.webp"
+      ),
+      pizza(
+        "p-meat-lover",
+        "Meat Lover",
+        "Meat Lover",
+        "Pepperoni, jamón, carne boloñesa, hongos portobello, queso mozzarella, chile, cebolla, junto con nuestra única Salsa Pomodoro de tomate pera.",
+        "Pepperoni, ham, ground beef bolognese, portobello mushrooms, mozzarella cheese, bell pepper and onion, with our signature homemade pear-tomato Pomodoro sauce.",
+        tierC,
+        "/assets/menu/p_meat_lover.webp"
+      ),
+      pizza(
+        "p-break-pizza",
+        "Break Pizza",
+        "Break Pizza",
+        "Rico pepperoni, jamón, pollo, carne boloñesa, queso mozzarella, chile, cebolla, junto con nuestra sabrosa Salsa Pomodoro de tomate pera.",
+        "Delicious pepperoni, ham, chicken, ground beef bolognese, mozzarella cheese, bell pepper and onion, with our tasty homemade pear-tomato Pomodoro sauce.",
+        tierC,
+        "/assets/menu/p_break_pizza.webp"
+      )
     ]
   },
   {
-    id: "hamburguesas",
-    name: "Hamburguesas",
-    shortName: "Burgers",
-    icon: "🍔",
+    id: "cat-calzone",
+    name: "Calzone",
+    nameEn: "Calzone",
+    shortName: "Calzone",
+    shortNameEn: "Calzone",
+    icon: "🥙",
     color: "orange",
-    image: "/assets/menu/hamburguesas.png",
+    image: null,
     items: [
       {
-        id: "hamburguesa-pollo",
-        name: "Hamburguesa de pollo",
-        description: "Hamburguesa de pollo con opciones pequenas, sencillas y papudas.",
-        basePrice: 950,
-        options: [
-          { id: "pequena", name: "1 hamburguesa pequena", addPrice: 0, isDefault: true },
-          { id: "sencilla", name: "Sencilla", addPrice: 650 },
-          { id: "en-salsa", name: "En salsa", addPrice: 950 },
-          { id: "papa-pequena", name: "Sencilla + papa pequena", addPrice: 1050 },
-          { id: "papas-fritas", name: "Sencilla + papas fritas", addPrice: 1050 },
-          { id: "papuda", name: "Papuda", addPrice: 1250 },
-          { id: "papuda-jamon-queso-tocineta", name: "Papuda con jamon, queso y tocineta", addPrice: 1750 },
-          { id: "gemelitas", name: "Gemelitas de pollo (2 pequenas)", addPrice: 950 }
-        ],
-        extras: burgerExtras
-      },
-      {
-        id: "hamburguesa-carne",
-        name: "Hamburguesa de carne",
-        description: "Hamburguesa de carne con opciones pequenas, papudas y desmechada.",
-        basePrice: 950,
-        options: [
-          { id: "pequena", name: "1 hamburguesa pequena", addPrice: 0, isDefault: true },
-          { id: "sencilla", name: "Sencilla", addPrice: 950 },
-          { id: "doble-torta", name: "Doble torta sencilla", addPrice: 1650 },
-          { id: "papuda", name: "Papuda", addPrice: 1350 },
-          { id: "papuda-jamon-queso-tocineta", name: "Papuda con jamon, queso y tocineta", addPrice: 1850 },
-          { id: "gemelitas", name: "Gemelitas de carne (2 pequenas)", addPrice: 1050 },
-          { id: "desmechada", name: "Carne desmechada", addPrice: 1900 },
-          { id: "desmechada-papas", name: "Carne desmechada + papas fritas", addPrice: 2400 }
-        ],
-        extras: burgerExtras
+        id: "cz-el-break",
+        name: "Calzone El Break",
+        nameEn: "El Break Calzone",
+        description:
+          "Nuestro producto más pedido. Masa hand-stretched plegada y horneada hasta dorar, espolvoreada con parmesano. Rellena de queso mozzarella derretido y nuestra Salsa Pomodoro de tomate pera. Tamaños y precio a confirmar con el local.",
+        descriptionEn:
+          "Our best-selling item. Hand-stretched dough folded and baked until golden, dusted with parmesan. Filled with melted mozzarella cheese and our pear-tomato Pomodoro sauce. Sizes and price to be confirmed with the restaurant.",
+        priceOnRequest: true,
+        basePrice: null,
+        options: [{ id: "unico", name: "Tamaño (a confirmar con el local)", nameEn: "Size (to be confirmed with the restaurant)", addPrice: 0, isDefault: true }],
+        extras: [],
+        image: "/assets/menu/cz_break.webp"
       }
     ]
   },
   {
-    id: "arroces",
-    name: "Arroces enteros",
-    shortName: "Arroces",
-    icon: "🍚",
-    color: "brown",
-    image: "/assets/menu/arroces.png",
-    items: [
-      {
-        id: "arroz-cantones",
-        name: "Arroz cantones",
-        description: "Arroces enteros con diferentes acompanamientos.",
-        basePrice: 2700,
-        options: [
-          { id: "regular", name: "Regular", addPrice: 0, isDefault: true },
-          { id: "especial-arreglado", name: "Especial arreglado", addPrice: 600 },
-          { id: "2-alitas", name: "Con 2 alitas", addPrice: 500 },
-          { id: "4-alitas", name: "Con 4 alitas", addPrice: 1300 },
-          { id: "cuarto-muslo", name: "Con porcion cuarto y muslo", addPrice: 1500 },
-          { id: "filet-pescado", name: "Con filet de pescado empanizado", addPrice: 1200 },
-          { id: "con-camarones", name: "Arroz con camarones", addPrice: 900 },
-          { id: "camarones-con-arroz", name: "Camarones con arroz", addPrice: 1800 }
-        ],
-        extras: []
-      }
-    ]
-  },
-  {
-    id: "papas",
-    name: "Papas",
-    shortName: "Papas",
-    icon: "🍟",
-    color: "yellow",
-    image: "/assets/menu/papas.png",
-    items: [
-      {
-        id: "papas-fritas",
-        name: "Papas fritas",
-        description: "Papas fritas en diferentes tamanos y preparaciones.",
-        basePrice: 850,
-        options: [
-          { id: "pequena", name: "Papa pequena (140 gramos)", addPrice: 0, isDefault: true },
-          { id: "grande", name: "Papa frita grande (230 gramos)", addPrice: 550 },
-          { id: "pequena-queso", name: "Papa pequena banada con salsa queso", addPrice: 100 },
-          { id: "grande-queso", name: "Papa frita grande banada con salsa queso", addPrice: 1150 }
-        ],
-        extras: polloSauceExtras.filter((extra) => extra.id !== "envase-adicional")
-      },
-      {
-        id: "papas-arregladas",
-        name: "Papas arregladas",
-        description: "Papas cargadas y salchipapas.",
-        basePrice: 2300,
-        options: [
-          { id: "salchipapa", name: "Salchipapa", addPrice: 0, isDefault: true },
-          { id: "papas-arregladas", name: "Papas arregladas", addPrice: 500 },
-          { id: "papas-emi", name: "Papas Emi", addPrice: 500 }
-        ],
-        extras: polloSauceExtras.filter((extra) => extra.id !== "envase-adicional")
-      }
-    ]
-  },
-  {
-    id: "antojitos",
-    name: "Antojitos",
-    shortName: "Antojitos",
-    icon: "🌮",
-    color: "green",
-    image: "/assets/menu/antojitos.png",
-    items: [
-      {
-        id: "pescado-camarones",
-        name: "Pescado y camarones",
-        description: "Antojitos de pescado y camarones.",
-        basePrice: 2000,
-        options: [
-          { id: "gallo-pescado", name: "Gallo de pescado empanizado", addPrice: 0, isDefault: true },
-          { id: "filet-pescado", name: "Filet de pescado empanizado", addPrice: 2000 },
-          { id: "nuggets-pescado", name: "Nuggets de pescado con papas y salsa", addPrice: 1500 },
-          { id: "20-camarones", name: "20 camarones empanizados", addPrice: 2700 }
-        ],
-        extras: polloSauceExtras.filter((extra) => extra.id !== "envase-adicional")
-      },
-      {
-        id: "tacos",
-        name: "Tacos",
-        description: "Tacos con tortilla de maiz, repollo y salsa.",
-        basePrice: 1600,
-        options: [
-          { id: "taco-sencillo", name: "Taco sencillo", addPrice: 0, isDefault: true },
-          { id: "taco-papudo", name: "Taco papudo con papas fritas", addPrice: 300 }
-        ],
-        extras: polloSauceExtras.filter((extra) => extra.id !== "envase-adicional")
-      },
-      {
-        id: "torta-carne",
-        name: "Torta de carne casera arreglada",
-        description: "Torta de carne con repollo y salsas.",
-        basePrice: 1350,
-        options: [
-          { id: "arreglada", name: "Arreglada", addPrice: 0, isDefault: true }
-        ],
-        extras: polloSauceExtras.filter((extra) => extra.id !== "envase-adicional")
-      },
-      {
-        id: "yuca-frita",
-        name: "Yuca frita",
-        description: "Yuca frita pequena o grande.",
-        basePrice: 500,
-        options: [
-          { id: "yuca-pequena", name: "Yuca frita pequena", addPrice: 0, isDefault: true },
-          { id: "yuca-grande", name: "Yuca frita grande (8 unidades)", addPrice: 500 }
-        ],
-        extras: polloSauceExtras.filter((extra) => extra.id !== "envase-adicional")
-      },
-      {
-        id: "palitos-queso",
-        name: "Palitos de queso",
-        description: "Palitos de queso acompanados con salsa queso.",
-        basePrice: 1900,
-        options: [
-          { id: "sencillo", name: "Sencillo con salsa queso", addPrice: 0, isDefault: true },
-          { id: "con-papas", name: "Con papas fritas", addPrice: 400 }
-        ],
-        extras: polloSauceExtras.filter((extra) => extra.id !== "envase-adicional")
-      },
-      {
-        id: "ceviche-pescado",
-        name: "Ceviche de pescado",
-        description: "Ceviche con tostadas.",
-        basePrice: 1000,
-        options: [
-          { id: "pequeno", name: "Pequeno 8 OZ + tostadas", addPrice: 0, isDefault: true },
-          { id: "entero", name: "Entero + tostadas", addPrice: 3000 }
-        ],
-        extras: []
-      }
-    ]
-  },
-  {
-    id: "combos",
-    name: "Combos",
+    id: "cat-combos",
+    name: "Combos Coca-Cola",
+    nameEn: "Coca-Cola Combos",
     shortName: "Combos",
-    icon: "🍱",
-    color: "lime",
-    image: "/assets/menu/infantiles.png",
+    shortNameEn: "Combos",
+    icon: "🎉",
+    color: "yellow",
+    image: null,
     items: [
       {
-        id: "combo-pollo-frito",
-        name: "Combo de pollo frito",
-        description: "Combos de pollo frito con papas.",
-        basePrice: 2650,
-        options: [
-          { id: "cuarto-muslo-papas", name: "Combo cuarto y muslo + papas", addPrice: 0, isDefault: true },
-          { id: "pechuga-ala-papas", name: "Combo pechuga y ala + papas", addPrice: 100 }
-        ],
-        extras: polloSauceExtras
+        id: "c-pequeno",
+        name: "Combo Pequeño",
+        nameEn: "Small Combo",
+        description: "Pizza pequeña de Jamón y Queso o Pepperoni + refresco de 600 ml.",
+        descriptionEn: "Small Ham and Cheese or Pepperoni pizza + 600 ml soda.",
+        basePrice: 4500,
+        options: pizzaFlavorOptions,
+        extras: [{ id: "upgrade-suprema", name: "Cambiar la pizza a Suprema", nameEn: "Upgrade the pizza to Supreme", price: 500 }],
+        image: "/assets/menu/c_pequeno.webp"
       },
       {
-        id: "combo-infantil",
-        name: "Combo infantil",
-        description: "Combos pequenos con papas y refresco de 350ml.",
-        basePrice: 2300,
-        options: [
-          { id: "alitas", name: "#1: 2 alitas empanizadas + papas + refresco", addPrice: 0, isDefault: true },
-          { id: "hamburguesa", name: "#2: hamburguesa pequena + papas + refresco", addPrice: 100 }
-        ],
-        extras: burgerExtras
+        id: "c-mediano",
+        name: "Combo Mediano",
+        nameEn: "Medium Combo",
+        description: "Pizza mediana de Jamón y Queso o Pepperoni + refresco de 1.5 L.",
+        descriptionEn: "Medium Ham and Cheese or Pepperoni pizza + 1.5 L soda.",
+        basePrice: 7500,
+        options: pizzaFlavorOptions,
+        extras: [{ id: "upgrade-suprema", name: "Cambiar la pizza a Suprema", nameEn: "Upgrade the pizza to Supreme", price: 500 }],
+        image: "/assets/menu/c_mediano.webp"
+      },
+      {
+        id: "c-familiar",
+        name: "Combo Familiar",
+        nameEn: "Family Combo",
+        description: "Pizza grande de Jamón y Queso o Pepperoni + pan de ajo + refresco de 2.5 L.",
+        descriptionEn: "Large Ham and Cheese or Pepperoni pizza + garlic bread + 2.5 L soda.",
+        basePrice: 13000,
+        options: pizzaFlavorOptions,
+        extras: [{ id: "upgrade-suprema", name: "Cambiar la pizza a Suprema", nameEn: "Upgrade the pizza to Supreme", price: 1000 }],
+        image: "/assets/menu/c_familiar.webp"
       }
     ]
   },
   {
-    id: "bebidas",
-    name: "Bebidas",
-    shortName: "Bebidas",
+    id: "cat-otros-antojos",
+    name: "Otros Antojos",
+    nameEn: "Other Cravings",
+    shortName: "Antojos",
+    shortNameEn: "Cravings",
+    icon: "🍝",
+    color: "lime",
+    image: null,
+    items: [
+      {
+        id: "oa-espagueti",
+        name: "Espagueti Supremo",
+        nameEn: "Supreme Spaghetti",
+        description:
+          "Nuestra sabrosa Salsa Pomodoro, carne boloñesa, chile dulce, cebolla, hongo portobello y gratinado con queso. Incluye una orden de pan de ajo supremo.",
+        descriptionEn:
+          "Our tasty homemade Pomodoro sauce, ground beef bolognese, bell pepper, onion, portobello mushroom and melted cheese gratin. Includes one order of supreme garlic bread.",
+        basePrice: 3500,
+        options: [
+          { id: "pequeno", name: "Pequeño", nameEn: "Small", addPrice: 0, isDefault: true },
+          { id: "grande", name: "Grande", nameEn: "Large", addPrice: 1000 }
+        ],
+        extras: [],
+        image: "/assets/menu/oa_espagueti.webp"
+      },
+      {
+        id: "oa-portobello",
+        name: "Portobello Supremo",
+        nameEn: "Supreme Portobello",
+        description:
+          "Hongo portobello relleno de una salsa especial de la casa y queso mozzarella. Acompañado de pan de ajo y una cama de queso parmesano. Tamaño único.",
+        descriptionEn:
+          "Portobello mushroom stuffed with the house's special sauce and mozzarella cheese. Served with garlic bread and a bed of parmesan cheese. One size only.",
+        basePrice: 4000,
+        options: [{ id: "unico", name: "Tamaño único", nameEn: "One size", addPrice: 0, isDefault: true }],
+        extras: [
+          { id: "prot-bolonesa", name: "Agregar carne boloñesa", nameEn: "Add ground beef bolognese", price: 0 },
+          { id: "prot-pollo", name: "Agregar pollo", nameEn: "Add chicken", price: 0 },
+          { id: "prot-tocineta", name: "Agregar tocineta", nameEn: "Add bacon", price: 0 }
+        ],
+        image: "/assets/menu/oa_portobello.webp"
+      }
+    ]
+  },
+  {
+    id: "cat-postres",
+    name: "Postres",
+    nameEn: "Desserts",
+    shortName: "Postres",
+    shortNameEn: "Desserts",
+    icon: "🍰",
+    color: "brown",
+    image: null,
+    items: [
+      {
+        id: "po-focaccia-dulce",
+        name: "Focaccia Dulce",
+        nameEn: "Sweet Focaccia",
+        description:
+          "Focaccia horneada con dulce de leche, fresas, banano, leche condensada y chocolate. Pensada para compartir.",
+        descriptionEn:
+          "Baked focaccia with dulce de leche, strawberries, banana, condensed milk and chocolate. Made to share.",
+        basePrice: 3500,
+        options: [
+          { id: "pequena", name: "Pequeña", nameEn: "Small", addPrice: 0, isDefault: true },
+          { id: "grande", name: "Grande", nameEn: "Large", addPrice: 1500 }
+        ],
+        extras: [],
+        image: "/assets/menu/po_focaccia.webp"
+      },
+      {
+        id: "po-cheesecake",
+        name: "Cheesecake",
+        nameEn: "Cheesecake",
+        description: "Cremoso, base de galleta.",
+        descriptionEn: "Creamy, with a cookie crust.",
+        basePrice: 1500,
+        options: [{ id: "porcion", name: "Porción", nameEn: "Portion", addPrice: 0, isDefault: true }],
+        extras: [],
+        image: "/assets/menu/po_cheesecake.webp"
+      },
+      {
+        id: "po-flan",
+        name: "Flan",
+        nameEn: "Flan",
+        description: "Flan tradicional con caramelo.",
+        descriptionEn: "Traditional flan with caramel.",
+        basePrice: 1500,
+        options: [{ id: "porcion", name: "Porción", nameEn: "Portion", addPrice: 0, isDefault: true }],
+        extras: [],
+        image: "/assets/menu/po_flan.webp"
+      },
+      {
+        id: "po-pie-limon",
+        name: "Pie de Limón",
+        nameEn: "Key Lime Pie",
+        description: "Base de galleta, crema de limón fresca y merengue dorado.",
+        descriptionEn: "Cookie crust, fresh lime cream and golden meringue.",
+        basePrice: 1500,
+        options: [{ id: "porcion", name: "Porción", nameEn: "Portion", addPrice: 0, isDefault: true }],
+        extras: [],
+        image: "/assets/menu/po_pie_limon.webp"
+      },
+      {
+        id: "po-tres-leches",
+        name: "Tres Leches",
+        nameEn: "Tres Leches Cake",
+        description: "Bizcocho empapado en tres leches con chantilly y fresa fresca.",
+        descriptionEn: "Sponge cake soaked in three milks with whipped cream and fresh strawberry.",
+        basePrice: 1500,
+        options: [{ id: "porcion", name: "Porción", nameEn: "Portion", addPrice: 0, isDefault: true }],
+        extras: [],
+        image: "/assets/menu/po_tres_leches.webp"
+      }
+    ]
+  },
+  {
+    id: "cat-refrescos-gaseosos",
+    name: "Refrescos Gaseosos",
+    nameEn: "Sodas",
+    shortName: "Gaseosas",
+    shortNameEn: "Sodas",
     icon: "🥤",
     color: "blue",
-    image: "/assets/menu/bebidas-extras.png",
+    image: "/assets/menu/rg_coca.webp",
     items: [
       {
-        id: "pepsi",
-        name: "Pepsi",
-        description: "Refresco Pepsi.",
-        basePrice: 1900,
-        options: [
-          { id: "25-litros", name: "2.5L", addPrice: 0, isDefault: true }
-        ],
+        id: "rg-te-frio",
+        name: "Vaso Té Frío",
+        nameEn: "Iced Tea Glass",
+        description: "Vaso de té frío Coca-Cola.",
+        descriptionEn: "Coca-Cola iced tea glass.",
+        basePrice: 400,
+        options: [{ id: "vaso", name: "Vaso", nameEn: "Glass", addPrice: 0, isDefault: true }],
         extras: []
       },
       {
-        id: "mundial-pina",
-        name: "Mundial pina",
-        description: "Refresco Mundial sabor pina.",
-        basePrice: 850,
-        options: [
-          { id: "350ml", name: "350ml", addPrice: 0, isDefault: true },
-          { id: "2-litros", name: "2L", addPrice: 950 }
-        ],
+        id: "rg-350",
+        name: "Gaseosa 350 ml",
+        nameEn: "Soda 350 ml",
+        description: "Bebida Coca-Cola, presentación 350 ml.",
+        descriptionEn: "Coca-Cola beverage, 350 ml.",
+        basePrice: 900,
+        options: [{ id: "unico", name: "350 ml", nameEn: "350 ml", addPrice: 0, isDefault: true }],
         extras: []
       },
       {
-        id: "mundial-kola",
-        name: "Mundial kola",
-        description: "Refresco Mundial sabor kola.",
-        basePrice: 850,
-        options: [
-          { id: "350ml", name: "350ml", addPrice: 0, isDefault: true },
-          { id: "2-litros", name: "2L", addPrice: 950 }
-        ],
+        id: "rg-600",
+        name: "Gaseosa 600 ml",
+        nameEn: "Soda 600 ml",
+        description: "Bebida Coca-Cola, presentación 600 ml.",
+        descriptionEn: "Coca-Cola beverage, 600 ml.",
+        basePrice: 1300,
+        options: [{ id: "unico", name: "600 ml", nameEn: "600 ml", addPrice: 0, isDefault: true }],
         extras: []
       },
       {
-        id: "mundial-zarza",
-        name: "Mundial zarza",
-        description: "Refresco Mundial sabor zarza.",
-        basePrice: 850,
-        options: [
-          { id: "350ml", name: "350ml", addPrice: 0, isDefault: true },
-          { id: "2-litros", name: "2L", addPrice: 950 }
-        ],
+        id: "rg-15l",
+        name: "Gaseosa 1.5 L",
+        nameEn: "Soda 1.5 L",
+        description: "Bebida Coca-Cola, presentación 1.5 L.",
+        descriptionEn: "Coca-Cola beverage, 1.5 L.",
+        basePrice: 1800,
+        options: [{ id: "unico", name: "1.5 L", nameEn: "1.5 L", addPrice: 0, isDefault: true }],
+        extras: []
+      },
+      {
+        id: "rg-25l",
+        name: "Gaseosa 2.5 L",
+        nameEn: "Soda 2.5 L",
+        description: "Bebida Coca-Cola, presentación 2.5 L.",
+        descriptionEn: "Coca-Cola beverage, 2.5 L.",
+        basePrice: 2500,
+        options: [{ id: "unico", name: "2.5 L", nameEn: "2.5 L", addPrice: 0, isDefault: true }],
+        extras: []
+      }
+    ]
+  },
+  {
+    id: "cat-refrescos-naturales",
+    name: "Refrescos Naturales",
+    nameEn: "Fresh Fruit Drinks",
+    shortName: "Naturales",
+    shortNameEn: "Fresh Drinks",
+    icon: "🍹",
+    color: "green",
+    image: "/assets/menu/rn_natural.webp",
+    items: [
+      {
+        id: "rn-agua",
+        name: "Refresco Natural en Agua",
+        nameEn: "Fresh Fruit Drink in Water",
+        description: "Elige tu sabor favorito, preparado en agua.",
+        descriptionEn: "Choose your favorite flavor, made with water.",
+        basePrice: 1300,
+        options: naturalFlavorOptions(),
+        extras: []
+      },
+      {
+        id: "rn-leche",
+        name: "Refresco Natural en Leche",
+        nameEn: "Fresh Fruit Drink in Milk",
+        description: "Elige tu sabor favorito, preparado en leche.",
+        descriptionEn: "Choose your favorite flavor, made with milk.",
+        basePrice: 1500,
+        options: naturalFlavorOptions(),
         extras: []
       }
     ]
@@ -356,6 +459,7 @@ export const allMenuItems = menuCategories.flatMap((category) =>
     ...item,
     categoryId: category.id,
     categoryName: category.name,
+    categoryNameEn: category.nameEn,
     categoryIcon: category.icon,
     categoryColor: category.color,
     categoryImage: category.image

@@ -1,4 +1,7 @@
 node_modules/
+node-local/
 dist/
 .vite/
 *.log
+.vite-dev.log
+.vite-dev-err.log

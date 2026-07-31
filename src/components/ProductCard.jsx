@@ -1,9 +1,18 @@
-export default function ProductCard({ product, formatPrice, onConfigure }) {
+function resolveAssetUrl(path) {
+  return `${import.meta.env.BASE_URL}${path.startsWith("/") ? path.slice(1) : path}`;
+}
+
+export default function ProductCard({ product, formatPrice, onConfigure, t }) {
+  const visualImage = product.image || product.categoryImage;
+
   return (
     <article className={`menu-card accent-${product.categoryColor}`}>
       <div className="menu-card__visual">
-        {product.categoryImage && <img src={`${import.meta.env.BASE_URL}${product.categoryImage.startsWith('/') ? product.categoryImage.slice(1) : product.categoryImage}`} alt="" loading="lazy" />}
-        <span>{product.categoryIcon}</span>
+        {visualImage ? (
+          <img src={resolveAssetUrl(visualImage)} alt="" loading="lazy" />
+        ) : (
+          <span>{product.categoryIcon}</span>
+        )}
       </div>
 
       <div className="menu-card__body">
@@ -14,9 +23,9 @@ export default function ProductCard({ product, formatPrice, onConfigure }) {
         </div>
 
         <div className="menu-card__bottom">
-          <strong>Desde {formatPrice(product.basePrice)}</strong>
+          <strong>{product.priceOnRequest ? t.priceOnRequest : `${t.from} ${formatPrice(product.basePrice)}`}</strong>
           <button className="configure-button" type="button" onClick={onConfigure}>
-            Configurar pedido
+            {product.priceOnRequest ? t.viewDetails : t.add}
           </button>
         </div>
       </div>

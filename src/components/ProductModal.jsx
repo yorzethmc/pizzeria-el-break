@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export default function ProductModal({ product, formatPrice, maxQuantity, onClose, addToCart }) {
+export default function ProductModal({ product, formatPrice, maxQuantity, onClose, addToCart, whatsappUrl, t }) {
   const defaultOption = product.options.find((option) => option.isDefault) || product.options[0];
   const [selectedOptionId, setSelectedOptionId] = useState(defaultOption.id);
   const [selectedExtras, setSelectedExtras] = useState(() => new Set());
@@ -9,7 +9,7 @@ export default function ProductModal({ product, formatPrice, maxQuantity, onClos
   const selectedOption = product.options.find((option) => option.id === selectedOptionId) || defaultOption;
   const extras = product.extras || [];
   const selectedExtraList = extras.filter((extra) => selectedExtras.has(extra.id));
-  const unitTotal = calculateTotal(product, selectedOption, selectedExtraList);
+  const unitTotal = product.priceOnRequest ? 0 : calculateTotal(product, selectedOption, selectedExtraList);
   const lineTotal = unitTotal * quantity;
 
   function toggleExtra(extraId) {
@@ -51,23 +51,30 @@ export default function ProductModal({ product, formatPrice, maxQuantity, onClos
     });
   }
 
+  const visualImage = product.image || product.categoryImage;
+
   return (
     <div className="modal-backdrop" role="presentation" onMouseDown={onClose}>
       <section className="product-modal" role="dialog" aria-modal="true" aria-labelledby="product-modal-title" onMouseDown={(event) => event.stopPropagation()}>
+        {visualImage && (
+          <div className="product-modal__image">
+            <img src={`${import.meta.env.BASE_URL}${visualImage.startsWith("/") ? visualImage.slice(1) : visualImage}`} alt="" />
+          </div>
+        )}
         <div className="product-modal__head">
           <div>
             <span className="category-label">{product.categoryName}</span>
             <h2 id="product-modal-title">{product.name}</h2>
             {product.description && <p>{product.description}</p>}
           </div>
-          <button className="modal-close" type="button" onClick={onClose} aria-label="Cerrar configuracion">
+          <button className="modal-close" type="button" onClick={onClose} aria-label={t.closeConfig}>
             x
           </button>
         </div>
 
         <div className="product-modal__scrollable">
           <div className="option-group">
-            <h3>Elige una opcion</h3>
+            <h3>{t.chooseOption}</h3>
             <div className="choice-stack">
               {product.options.map((option) => (
                 <label className="choice-row" key={option.id} onClick={() => setSelectedOptionId(option.id)}>
@@ -79,7 +86,7 @@ export default function ProductModal({ product, formatPrice, maxQuantity, onClos
                   />
                   <span>
                     <strong>{option.name}</strong>
-                    <small>{option.addPrice > 0 ? `+ ${formatPrice(option.addPrice)}` : "Incluido"}</small>
+                    <small>{option.addPrice > 0 ? `+ ${formatPrice(option.addPrice)}` : t.included}</small>
                   </span>
                 </label>
               ))}
@@ -88,7 +95,7 @@ export default function ProductModal({ product, formatPrice, maxQuantity, onClos
 
           {extras.length > 0 && (
             <div className="option-group">
-              <h3>Extras</h3>
+              <h3>{t.extrasLabel}</h3>
               <div className="choice-stack">
                 {extras.map((extra) => (
                   <label className="choice-row" key={extra.id}>
@@ -109,30 +116,41 @@ export default function ProductModal({ product, formatPrice, maxQuantity, onClos
         </div>
 
         <div className="product-modal__footer">
-          <div className="quantity-row">
-            <span>Cantidad</span>
-            <div className="qty-control">
-              <button type="button" onClick={() => updateQuantity(quantity - 1)} aria-label="Restar cantidad">-</button>
-              <input
-                type="number"
-                min="1"
-                max={maxQuantity}
-                value={quantity}
-                onChange={(event) => updateQuantity(event.target.value)}
-                aria-label="Cantidad"
-              />
-              <button type="button" onClick={() => updateQuantity(quantity + 1)} aria-label="Sumar cantidad">+</button>
-            </div>
-          </div>
+          {product.priceOnRequest ? (
+            <>
+              <p className="total-note">{t.priceOnRequestNote}</p>
+              <a className="primary-button" href={whatsappUrl} target="_blank" rel="noreferrer">
+                {t.askWhatsapp}
+              </a>
+            </>
+          ) : (
+            <>
+              <div className="quantity-row">
+                <span>{t.quantity}</span>
+                <div className="qty-control">
+                  <button type="button" onClick={() => updateQuantity(quantity - 1)} aria-label={t.decreaseQty}>-</button>
+                  <input
+                    type="number"
+                    min="1"
+                    max={maxQuantity}
+                    value={quantity}
+                    onChange={(event) => updateQuantity(event.target.value)}
+                    aria-label={t.quantity}
+                  />
+                  <button type="button" onClick={() => updateQuantity(quantity + 1)} aria-label={t.increaseQty}>+</button>
+                </div>
+              </div>
 
-          <div className="modal-total">
-            <span>Total configurado</span>
-            <strong>{formatPrice(lineTotal)}</strong>
-          </div>
+              <div className="modal-total">
+                <span>{t.configuredTotal}</span>
+                <strong>{formatPrice(lineTotal)}</strong>
+              </div>
 
-          <button className="primary-button" type="button" onClick={handleAddToCart}>
-            Añadir al carrito - {formatPrice(lineTotal)}
-          </button>
+              <button className="primary-button" type="button" onClick={handleAddToCart}>
+                {t.addToCart} - {formatPrice(lineTotal)}
+              </button>
+            </>
+          )}
         </div>
       </section>
     </div>
